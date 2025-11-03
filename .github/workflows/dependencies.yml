@@ -1,0 +1,23 @@
+name: Dependencies Example
+on:
+  workflow_dispatch:
+  
+  
+jobs:
+  proefme:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v5
+      
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+          node-version: '20.x'
+          
+    - name: Install dependencies
+      run: npm install
+
+    - name: Verification
+      run: ls -alhR
