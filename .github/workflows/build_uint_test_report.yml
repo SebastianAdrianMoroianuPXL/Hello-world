@@ -51,3 +51,11 @@ jobs:
       # 8️⃣ Verification
       - name: Verification
         run: ls -alhR
+        # At the end of your workflow file
+      - name: Generate Code Coverage Report
+        uses: codecov/codecov-action@v4
+        with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            files: ./coverage.xml
+            fail_ci_if_error: true
+
