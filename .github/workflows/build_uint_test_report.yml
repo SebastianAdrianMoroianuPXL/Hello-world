@@ -1,0 +1,63 @@
+name: Build Example Unist test Report
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # 2️⃣ Setup Node.js / NPM
+      - name: Set up Node.js / NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3️⃣ Install dependencies (veilig checken of package.json bestaat)
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            echo "package.json found — running npm install..."
+            npm install
+          else
+            echo "No package.json found — skipping npm install."
+          fi
+
+      # 4️⃣ Bundle alles in een zip
+      - name: Bundle application into zip
+        run: |
+          zip -r app_bundle.zip . -x "*.git*"
+
+      # 5️⃣ Upload ZIP als artifact
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-bundle
+          path: app_bundle.zip
+
+      # 6️⃣ Run unit tests and create report
+      - name: Run unit tests
+        run: |
+          if [ -f package.json ]; then
+            echo "Running unit tests..."
+            npm test -- --reporter=mocha-junit-reporter --reporter-options mochaFile=results.xml || true
+          else
+            echo "No package.json found — skipping tests."
+          fi
+
+      # 7️⃣ Upload test report as artifact
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: results.xml
+
+      # 8️⃣ Verification (toon inhoud van de runner)
+      - name: Verification
+        run: ls -alhR
